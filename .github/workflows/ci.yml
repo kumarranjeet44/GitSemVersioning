@@ -23,7 +23,7 @@ jobs:
 
       - name: Install GitVersion
         run: |
-          dotnet tool install --global GitVersion.Tool
+          dotnet tool install --global GitVersion.Tool --version 5.6.0
 
       - name: Generate Version Info
         id: version
