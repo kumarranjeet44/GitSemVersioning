@@ -10,6 +10,9 @@ on:
       - 'release/*'
       - 'rc/*'
 
+permissions:
+  contents: write  # Allow write access to the repository for pushing tags and making changes
+
 jobs:
   versioning:
     runs-on: ubuntu-latest
@@ -30,7 +33,7 @@ jobs:
       run: |
         dotnet tool install --global GitVersion.Tool
         echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
-        dotnet-gitversion -version
+        dotnet-gitversion -version  # Ensure dotnet-gitversion is working
 
       # Fetch tags and debug git fetch
     - name: Fetch tags and Debug
@@ -72,7 +75,7 @@ jobs:
     - name: Create Git Tag
       run: |
         git tag $VERSION
-        git push origin $VERSION
+        git push https://github.com/${{ github.repository }} $VERSION  # Push tag with authentication
 
       # Optionally: Create GitHub Release
     - name: Create GitHub Release
@@ -80,4 +83,4 @@ jobs:
       with:
         files: build_output.zip
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Make sure the token is passed for authentication
