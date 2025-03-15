@@ -11,7 +11,7 @@ on:
       - 'rc/*'
 
 permissions:
-  contents: write  # Allow write access to the repository for pushing tags and making changes
+  contents: write  # Yes Allow write access to the repository for pushing tags and making changes
 
 jobs:
   versioning:
