@@ -35,7 +35,7 @@ jobs:
         echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
 
         # Verify that the installation worked by printing the version
-        dotnet-gitversion --version  # This should print the version of the GitVersion tool
+        dotnet-gitversion -version  # This should print the version of the GitVersion tool
 
       # Run GitVersion to get the version number
     - name: Run GitVersion
