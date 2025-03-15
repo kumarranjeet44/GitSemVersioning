@@ -6,9 +6,9 @@ on:
       - main
       - master
       - develop
-      - 'feature/*'    # Add support for feature branches
-      - 'release/*'    # Handle release branches
-      - 'rc/*'         # Handle release candidate branches
+      - 'feature/*'
+      - 'release/*'
+      - 'rc/*'
 
 jobs:
   versioning:
@@ -23,42 +23,37 @@ jobs:
     - name: Set up .NET
       uses: actions/setup-dotnet@v2
       with:
-        dotnet-version: '8.0'  # You can use a newer version depending on your project
+        dotnet-version: '8.0'  # Adjust depending on your project requirements
 
-      # Install GitVersion.Tool (ensure it gets installed correctly)
+      # Install GitVersion.Tool
     - name: Install GitVersion.Tool
       run: |
-        # Install GitVersion globally using the .NET CLI
         dotnet tool install --global GitVersion.Tool
-
-        # Add the tool to the PATH (so it can be found by subsequent steps)
         echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
+        dotnet-gitversion -version
 
-        # Verify that the installation worked by printing the version
-        dotnet-gitversion -version  # This should print the version of the GitVersion tool
+      # Fetch tags and debug git fetch
+    - name: Fetch tags and Debug
+      run: |
+        echo "Fetching tags from the remote repository..."
+        git fetch --tags -v  # Added verbose flag to give detailed information on fetch
+        git status           # Check if repository is in a clean state and if any changes are pending
 
       # Run GitVersion to get the version number
     - name: Run GitVersion
       id: gitversion
       run: |
-        # Ensure that git fetch was successful
-        git fetch --tags
-
-        # Now, attempt to get the version
         VERSION=$(dotnet-gitversion /showvariable FullSemVer)
         echo "Version: $VERSION"
-
-        # Save the version to the environment
         echo "VERSION=$VERSION" >> $GITHUB_ENV
 
-      # Modify version for alpha, beta, rc, or feature tags based on branch
+      # Adjust version for alpha, beta, rc, or feature tags based on branch
     - name: Adjust Version for Pre-release or Feature
       id: adjust_version
       run: |
         BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
         VERSION=${{ env.VERSION }}
 
-        # Check for alpha, beta, rc, or feature tags
         if [[ "$BRANCH_NAME" == "develop" ]]; then
           VERSION="${VERSION}-alpha.${GITHUB_RUN_NUMBER}"
         elif [[ "$BRANCH_NAME" == "release/"* ]]; then
@@ -66,24 +61,23 @@ jobs:
         elif [[ "$BRANCH_NAME" == "rc/"* ]]; then
           VERSION="${VERSION}-rc.${GITHUB_RUN_NUMBER}"
         elif [[ "$BRANCH_NAME" == feature/* ]]; then
-          # For feature branches, append the branch name and a number to the version
-          FEATURE_NAME=$(echo $BRANCH_NAME | sed 's/feature\///')  # Remove 'feature/' prefix
+          FEATURE_NAME=$(echo $BRANCH_NAME | sed 's/feature\///')
           VERSION="${VERSION}-feature${FEATURE_NAME}.${GITHUB_RUN_NUMBER}"
         fi
 
         echo "Pre-release version: $VERSION"
         echo "VERSION=$VERSION" >> $GITHUB_ENV
 
-      # Create a Git tag with the version
+      # Create Git tag
     - name: Create Git Tag
       run: |
         git tag $VERSION
         git push origin $VERSION
 
-      # Optionally: Create a GitHub Release (if required)
+      # Optionally: Create GitHub Release
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v1
       with:
-        files: build_output.zip  # Change this to the files you want to attach to the release
+        files: build_output.zip
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
