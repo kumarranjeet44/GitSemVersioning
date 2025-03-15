@@ -50,7 +50,7 @@ jobs:
       id: gitversion
       run: |
         git fetch --tags
-        VERSION=$(gitversion /showvariable FullSemVer)
+        VERSION=$(dotnet-gitversion /showvariable FullSemVer)
         echo "Version: $VERSION"
         echo "VERSION=$VERSION" >> $GITHUB_ENV
 
