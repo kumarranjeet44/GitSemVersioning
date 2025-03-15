@@ -1,0 +1,22 @@
+mode: ContinuousDelivery
+branches:
+  master:
+    regex: ^master$
+    increment: Minor
+    tag: 'stable'
+  develop:
+    regex: ^develop$
+    increment: Minor
+    tag: 'alpha'
+  feature:
+    regex: ^features?[/-]
+    increment: Minor
+    tag: 'alpha'
+  hotfix:
+    regex: ^hotfix(es)?[/-]
+    increment: Patch
+    tag: 'hotfix'
+  release:
+    regex: ^release[/-]
+    increment: Minor
+    tag: 'beta'
