@@ -36,7 +36,7 @@ jobs:
       # Install GitVersion.Tool
     - name: Install GitVersion.Tool
       run: |
-        dotnet tool install --global GitVersion.Tool
+        dotnet tool install --global GitVersion.Tool --version 5.6.0
         echo "$HOME/.dotnet/tools" >> $GITHUB_PATH  # Add GitVersion to PATH
 
       # Run GitVersion to get the version number
