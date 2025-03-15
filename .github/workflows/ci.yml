@@ -31,12 +31,12 @@ jobs:
     - name: Set up .NET
       uses: actions/setup-dotnet@v2
       with:
-        dotnet-version: '6.0'  # Use .NET version for GitVersion tool
+        dotnet-version: '8.0'  # Use .NET version for GitVersion tool
 
       # Install GitVersion.Tool
     - name: Install GitVersion.Tool
       run: |
-        dotnet tool install --global GitVersion.Tool --version 5.6.0
+        dotnet tool install --global GitVersion.Tool
         echo "$HOME/.dotnet/tools" >> $GITHUB_PATH  # Add GitVersion to PATH
 
       # Run GitVersion to get the version number
