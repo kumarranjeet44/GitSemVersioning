@@ -1,41 +1,86 @@
-name: .NET Build & Tag Version
+name: Auto Tag with Semantic Versioning
 
 on:
   push:
     branches:
+      - main
       - master
       - develop
-      - feature/*
-      - hotfix/*
-      - release/*
+      - 'feature/*'    # Add support for feature branches
+      - 'release/*'    # Handle release branches
+      - 'rc/*'         # Handle release candidate branches
+  pull_request:
+    branches:
+      - main
+      - master
+      - develop
+      - 'feature/*'
+      - 'release/*'
+      - 'rc/*'
 
 jobs:
-  build:
+  versioning:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v2
+      # Checkout code
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: '6.0.x'
+      # Set up .NET
+    - name: Set up .NET
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: '6.0'  # Use .NET version for GitVersion tool
 
-      - name: Install GitVersion
-        run: |
-          dotnet tool install --global GitVersion.Tool --version 5.6.0
+      # Install GitVersion.Tool
+    - name: Install GitVersion.Tool
+      run: |
+        dotnet tool install --global GitVersion.Tool
+        echo "$HOME/.dotnet/tools" >> $GITHUB_PATH  # Add GitVersion to PATH
 
-      - name: Generate Version Info
-        id: version
-        run: |
-          git fetch --tags
-          gitversion /showvariable FullSemVer
+      # Run GitVersion to get the version number
+    - name: Run GitVersion
+      id: gitversion
+      run: |
+        git fetch --tags
+        VERSION=$(gitversion /showvariable FullSemVer)
+        echo "Version: $VERSION"
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
 
-      - name: Build Project
-        run: |
-          dotnet build --configuration Release
+      # Modify version for alpha, beta, rc, or feature tags based on branch
+    - name: Adjust Version for Pre-release or Feature
+      id: adjust_version
+      run: |
+        BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
+        VERSION=${{ env.VERSION }}
 
-      - name: Tag Commit with Version
-        run: |
-          git tag -a "v${{ steps.version.outputs.FullSemVer }}" -m "Release version"
-          git push origin --tags
+        # Check for alpha, beta, rc, or feature tags
+        if [[ "$BRANCH_NAME" == "develop" ]]; then
+          VERSION="${VERSION}-alpha.${GITHUB_RUN_NUMBER}"
+        elif [[ "$BRANCH_NAME" == "release/"* ]]; then
+          VERSION="${VERSION}-beta.${GITHUB_RUN_NUMBER}"
+        elif [[ "$BRANCH_NAME" == "rc/"* ]]; then
+          VERSION="${VERSION}-rc.${GITHUB_RUN_NUMBER}"
+        elif [[ "$BRANCH_NAME" == feature/* ]]; then
+          # For feature branches, append the branch name and a number to the version
+          FEATURE_NAME=$(echo $BRANCH_NAME | sed 's/feature\///')  # Remove 'feature/' prefix
+          VERSION="${VERSION}-feature${FEATURE_NAME}.${GITHUB_RUN_NUMBER}"
+        fi
+
+        echo "Pre-release version: $VERSION"
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      # Create a Git tag with the version
+    - name: Create Git Tag
+      run: |
+        git tag $VERSION
+        git push origin $VERSION
+
+      # Optionally: Create a GitHub Release (if required)
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: build_output.zip  # Change this to the files you want to attach to the release
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
