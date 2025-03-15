@@ -43,12 +43,16 @@ jobs:
         git status           # Check if repository is in a clean state and if any changes are pending
 
       # Run GitVersion to get the version number
-    - name: Run GitVersion
+    - name: Run GitVersion and debug
       id: gitversion
       run: |
+        set -x  # Enable debugging to print commands and outputs
         VERSION=$(dotnet-gitversion /showvariable FullSemVer)
         echo "Version: $VERSION"
-        echo "VERSION=$VERSION" >> $GITHUB_ENV
+        echo "VERSION=${VERSION}" >> $GITHUB_ENV
+      shell: bash
+      env:
+        DOTNET_ROOT: /home/runner/.dotnet
 
 
 
