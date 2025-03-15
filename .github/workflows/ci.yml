@@ -9,14 +9,6 @@ on:
       - 'feature/*'    # Add support for feature branches
       - 'release/*'    # Handle release branches
       - 'rc/*'         # Handle release candidate branches
-  pull_request:
-    branches:
-      - main
-      - master
-      - develop
-      - 'feature/*'
-      - 'release/*'
-      - 'rc/*'
 
 jobs:
   versioning:
