@@ -21,8 +21,6 @@ jobs:
       # Checkout code
     - name: Checkout code
       uses: actions/checkout@v2
-      with:
-        fetch-depth: 0 #Ensures the full history is fetched
 
       # Set up .NET
     - name: Set up .NET
@@ -43,30 +41,35 @@ jobs:
         echo "Fetching tags from the remote repository..."
         git fetch --tags -v  # Added verbose flag to give detailed information on fetch
         git status           # Check if repository is in a clean state and if any changes are pending
-        
-    - name: Cache GitVersion cache directory
-      uses: actions/cache@v3
-      with:
-        path: .git/gitversion_cache
-        key: ${{ runner.os }}-gitversion-${{ hashFiles('**/GitVersion.yml') }}
-        restore-keys: |
-          ${{ runner.os }}-gitversion-        
-    - name: Clear GitVersion cache
-      run: |
-        rm -rf .git/gitversion_cache
+
       # Run GitVersion to get the version number
-    - name: Run GitVersion and debug
+    - name: Run GitVersion
       id: gitversion
       run: |
-        set -x  # Enable debugging to print commands and outputs
-        VERSION=$(dotnet-gitversion /showvariable FullSemVer)
+        VERSION=1.2.0
         echo "Version: $VERSION"
-        echo "VERSION=${VERSION}" >> $GITHUB_ENV
-      shell: bash
-      env:
-        DOTNET_ROOT: /home/runner/.dotnet
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
 
+      # Adjust version for alpha, beta, rc, or feature tags based on branch
+    - name: Adjust Version for Pre-release or Feature
+      id: adjust_version
+      run: |
+        BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
+        VERSION=${{ env.VERSION }}
 
+        if [[ "$BRANCH_NAME" == "develop" ]]; then
+          VERSION="${VERSION}-alpha.${GITHUB_RUN_NUMBER}"
+        elif [[ "$BRANCH_NAME" == "release/"* ]]; then
+          VERSION="${VERSION}-beta.${GITHUB_RUN_NUMBER}"
+        elif [[ "$BRANCH_NAME" == "rc/"* ]]; then
+          VERSION="${VERSION}-rc.${GITHUB_RUN_NUMBER}"
+        elif [[ "$BRANCH_NAME" == feature/* ]]; then
+          FEATURE_NAME=$(echo $BRANCH_NAME | sed 's/feature\///')
+          VERSION="${VERSION}-feature${FEATURE_NAME}.${GITHUB_RUN_NUMBER}"
+        fi
+
+        echo "Pre-release version: $VERSION"
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       # Create Git tag
     - name: Create Git Tag
