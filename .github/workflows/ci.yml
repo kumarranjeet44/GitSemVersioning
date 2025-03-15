@@ -31,13 +31,19 @@ jobs:
     - name: Set up .NET
       uses: actions/setup-dotnet@v2
       with:
-        dotnet-version: '8.0'  # Use .NET version for GitVersion tool
+        dotnet-version: '6.0'  # You can use a newer version depending on your project
 
-      # Install GitVersion.Tool
+      # Install GitVersion.Tool (ensure it gets installed correctly)
     - name: Install GitVersion.Tool
       run: |
+        # Install GitVersion globally using the .NET CLI
         dotnet tool install --global GitVersion.Tool
-        echo "$HOME/.dotnet/tools" >> $GITHUB_PATH  # Add GitVersion to PATH
+
+        # Add the tool to the PATH
+        echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
+
+        # Verify that the installation worked by printing the version
+        gitversion --version
 
       # Run GitVersion to get the version number
     - name: Run GitVersion
