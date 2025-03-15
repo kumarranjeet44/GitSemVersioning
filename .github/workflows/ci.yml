@@ -31,19 +31,24 @@ jobs:
         # Install GitVersion globally using the .NET CLI
         dotnet tool install --global GitVersion.Tool
 
-        # Add the tool to the PATH
+        # Add the tool to the PATH (so it can be found by subsequent steps)
         echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
 
         # Verify that the installation worked by printing the version
-        dotnet-gitversion -version
+        dotnet-gitversion --version  # This should print the version of the GitVersion tool
 
       # Run GitVersion to get the version number
     - name: Run GitVersion
       id: gitversion
       run: |
-        git fetch --tags
-        VERSION=$(dotnet-gitversion /showvariable FullSemVer)
+        # Ensure that git fetch was successful
+        git fetch --tags || exit 1
+
+        # Now, attempt to get the version
+        VERSION=$(dotnet-gitversion /showvariable FullSemVer) || exit 1
         echo "Version: $VERSION"
+
+        # Save the version to the environment
         echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       # Modify version for alpha, beta, rc, or feature tags based on branch
