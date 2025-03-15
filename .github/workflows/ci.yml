@@ -77,10 +77,11 @@ jobs:
         git tag $VERSION
         git push https://github.com/${{ github.repository }} $VERSION  # Push tag with authentication
 
-      # Optionally: Create GitHub Release
+        # Create GitHub Release (Ensure tag exists before release)
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v1
       with:
-        files: build_output.zip
+        tag_name: ${{ env.VERSION }}  # Use the correct tag from the environment variable
+        files: build_output.zip  # Replace with your actual build output file(s)
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Make sure the token is passed for authentication
