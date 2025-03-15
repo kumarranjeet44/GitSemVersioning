@@ -21,6 +21,8 @@ jobs:
       # Checkout code
     - name: Checkout code
       uses: actions/checkout@v2
+      with:
+        fetch-depth: 0 #Ensures the full history is fetched
 
       # Set up .NET
     - name: Set up .NET
