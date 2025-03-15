@@ -31,7 +31,7 @@ jobs:
     - name: Set up .NET
       uses: actions/setup-dotnet@v2
       with:
-        dotnet-version: '6.0'  # You can use a newer version depending on your project
+        dotnet-version: '8.0'  # You can use a newer version depending on your project
 
       # Install GitVersion.Tool (ensure it gets installed correctly)
     - name: Install GitVersion.Tool
