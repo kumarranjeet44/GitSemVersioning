@@ -43,7 +43,9 @@ jobs:
         echo "Fetching tags from the remote repository..."
         git fetch --tags -v  # Added verbose flag to give detailed information on fetch
         git status           # Check if repository is in a clean state and if any changes are pending
-
+    - name: Clear GitVersion cache
+      run: |
+        rm -rf .git/gitversion_cache
       # Run GitVersion to get the version number
     - name: Run GitVersion and debug
       id: gitversion
