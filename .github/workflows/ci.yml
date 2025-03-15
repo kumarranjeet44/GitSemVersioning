@@ -43,7 +43,7 @@ jobs:
     - name: Run GitVersion
       id: gitversion
       run: |
-        VERSION=$(dotnet-gitversion /showvariable FullSemVer)
+        VERSION=1.1.0
         echo "Version: $VERSION"
         echo "VERSION=$VERSION" >> $GITHUB_ENV
 
