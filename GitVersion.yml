@@ -1,22 +1,11 @@
-mode: ContinuousDelivery
+versioningMode: ContinuousDelivery
 branches:
   master:
     regex: ^master$
+    tag: 'v'
     increment: Minor
-    tag: 'stable'
+    prevent-increment-of-merged-branch-version: true
   develop:
     regex: ^develop$
+    tag: 'dev'
     increment: Minor
-    tag: 'alpha'
-  feature:
-    regex: ^features?[/-]
-    increment: Minor
-    tag: 'alpha'
-  hotfix:
-    regex: ^hotfix(es)?[/-]
-    increment: Patch
-    tag: 'hotfix'
-  release:
-    regex: ^release[/-]
-    increment: Minor
-    tag: 'beta'
