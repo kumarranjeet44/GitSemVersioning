@@ -42,10 +42,10 @@ jobs:
       id: gitversion
       run: |
         # Ensure that git fetch was successful
-        git fetch --tags || exit 1
+        git fetch --tags
 
         # Now, attempt to get the version
-        VERSION=$(dotnet-gitversion /showvariable FullSemVer) || exit 1
+        VERSION=$(dotnet-gitversion /showvariable FullSemVer)
         echo "Version: $VERSION"
 
         # Save the version to the environment
