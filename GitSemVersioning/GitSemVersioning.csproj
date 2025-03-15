@@ -5,5 +5,9 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
+  <PropertyGroup>
+	<Version>$(GitVersion_NuGetVersion)</Version>
+	<PackageVersion>$(GitVersion_NuGetVersion)</PackageVersion>
+  </PropertyGroup>
 
 </Project>
