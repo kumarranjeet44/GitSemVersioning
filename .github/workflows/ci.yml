@@ -45,7 +45,7 @@ jobs:
 
       # Run GitVersion to get the version number
     - name: Run GitVersion
-      id: gitversion  # updating version number as it is bug fix so from 1.2.0 to 1.2.1
+      id: gitversion  # updating version number as it is bug fix so from 1.2.0 to 1.2.1 ---->>
       run: |
         VERSION=1.2.1
         echo "Version: $VERSION"
