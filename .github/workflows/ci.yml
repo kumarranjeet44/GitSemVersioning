@@ -55,6 +55,9 @@ jobs:
       # when we push any branched  to the master, first version number of software will be appended with proper Semantic version and then tag will be created accoridinly and then tag will be pushed to the remote and then it will automatically create release , means Semantic, tagging, and then release at last.
       # alpha tagging will be created, when create a pull request from develop branch to merge into master branch
       # if tag is already exist, and if we want to merge develop branch to master branch, then tagging will fail saying tag is already exist so change version number of application before merging develop to master.
+      
+      # release tag like 1.2.3 will be generated when we merge commit(dev,release,or anyother branch we merge to master) to master branch
+      # pre release tag like 1.2.2-alpha-23, will be generated when we merge commits to develop branch
     - name: Adjust Version for Pre-release or Feature
       id: adjust_version
       run: |
