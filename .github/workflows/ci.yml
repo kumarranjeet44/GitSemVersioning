@@ -8,10 +8,11 @@ on:
       - develop
       - 'feature/*'
       - 'release/*'
+      - 'bugfix/*'
       - 'rc/*'
 
 permissions:
-  contents: write  # Allow write access to the repository for pushing tags and making changes
+  contents: write  # Yes Allow write access to the repository for pushing tags and making changes
 
 jobs:
   versioning:
@@ -44,13 +45,14 @@ jobs:
 
       # Run GitVersion to get the version number
     - name: Run GitVersion
-      id: gitversion
+      id: gitversion  # updating version number as it is bug fix so from 1.2.0 to 1.2.1 --->>
       run: |
-        VERSION=1.2.0
+        VERSION=1.2.1
         echo "Version: $VERSION"
         echo "VERSION=$VERSION" >> $GITHUB_ENV
 
-      # Adjust version for alpha, beta, rc, or feature tags based on branch
+      # Adjust version for alpha, beta, rc, or feature tags based on branch, if we merge below branched to master then alpha, beta, rc will be appended to the tag before generating the tag.
+      # when we push any branched  to the master, first version number of software will be appended with proper Semantic version and then tag will be created accoridinly and then tag will be pushed to the remote and then it will automatically create release , means Semantic, tagging, and then release at last.
     - name: Adjust Version for Pre-release or Feature
       id: adjust_version
       run: |
@@ -71,7 +73,7 @@ jobs:
         echo "Pre-release version: $VERSION"
         echo "VERSION=$VERSION" >> $GITHUB_ENV
 
-      # Create Git tag
+      # Create Git tag, here version has been appropriately updated with sementic versioning, like if alpha, beta and so on so before creating tag, it is require to do semantic versiong properly using version of software.  
     - name: Create Git Tag
       run: |
         git tag $VERSION
