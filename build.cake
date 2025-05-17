@@ -52,12 +52,12 @@ Task("Clean").Does(() => {
 
 Task("Restore")
     .Does(() => {
-        DotNetCoreRestore("./GitSemVersioning.sln");
+        DotNetRestore("./GitSemVersioning.sln");
     });
 
-Task("Build").IsDependentOn("Restore").IsDependentOn("Publish").Does(() => 
+Task("Build").IsDependentOn("Restore").Does(() => 
 {
-    DotNetCoreBuild("./GitSemVersioning.sln", new DotNetCoreBuildSettings
+    DotNetBuild("./GitSemVersioning.sln", new DotNetBuildSettings
     {
         Configuration = configuration,
 		OutputDirectory = ouputDir
@@ -73,7 +73,7 @@ Task("Test").ContinueOnError().Does(() =>
     foreach (var project in testProjects)
     {
         var projectName = project.GetFilenameWithoutExtension();
-        var testSettings = new DotNetCoreTestSettings
+        var testSettings = new DotNetTestSettings
         {
             Loggers = new[] { $"trx;LogFileName={projectName}.trx" },
             ArgumentCustomization = args => args
@@ -81,7 +81,7 @@ Task("Test").ContinueOnError().Does(() =>
                 .Append("/p:CollectCoverage=true")
                 .Append("-- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover")
         };
-        DotNetCoreTest(project.FullPath, testSettings);
+        DotNetTest(project.FullPath, testSettings);
     }
 
     // Copy Test Results and Coverage Reports
@@ -183,9 +183,8 @@ Task("Tagmaster").Does(() => {
 
 // Simplified "full" task chain
 Task("full")
-	.IsDependentOn("Clean")
-	.IsDependentOn("Build")
-	.IsDependentOn("Test")
-    .IsDependentOn("Publish");
+    .IsDependentOn("Clean")
+    .IsDependentOn("Build")
+    .IsDependentOn("Test");
 
 RunTarget(target);
