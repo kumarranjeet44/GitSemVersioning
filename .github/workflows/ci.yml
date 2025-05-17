@@ -1,0 +1,91 @@
+name: Auto Tag with Semantic Versioning
+
+on:
+  push:
+    branches:
+      - main
+      - master
+      - develop
+      - 'feature/*'
+      - 'release/*'
+      - 'bugfix/*'
+      - 'rc/*'
+
+permissions:
+  contents: write  # Yes Allow write access to the repository for pushing tags and making changes
+
+jobs:
+  versioning:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout code
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+      # Set up .NET
+    - name: Set up .NET
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: '8.0'  # Adjust depending on your project requirements
+
+      # Install GitVersion.Tool
+    - name: Install GitVersion.Tool
+      run: |
+        dotnet tool install --global GitVersion.Tool
+        echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
+        dotnet-gitversion -version  # Ensure dotnet-gitversion is working
+
+      # Fetch tags and debug git fetch
+    - name: Fetch tags and Debug
+      run: |
+        echo "Fetching tags from the remote repository..."
+        git fetch --tags -v  # Added verbose flag to give detailed information on fetch
+        git status           # Check if repository is in a clean state and if any changes are pending
+
+      # Run GitVersion to get the version number
+    - name: Run GitVersion
+      id: gitversion  # updating version number as it is bug fix so from 1.2.0 to 1.2.1 --->>....
+      run: |
+        VERSION=1.2.2
+        echo "Version: $VERSION"
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      # Adjust version for alpha, beta, rc, or feature tags based on branch, if we merge below branched to master then alpha, beta, rc will be appended to the tag before generating the tag.
+      # when we push any branched  to the master, first version number of software will be appended with proper Semantic version and then tag will be created accoridinly and then tag will be pushed to the remote and then it will automatically create release , means Semantic, tagging, and then release at last.
+      # alpha tagging will be created, when create a pull request from develop branch to merge into master branch
+      # if tag is already exist, and if we want to merge develop branch to master branch, then tagging will fail saying tag is already exist so change version number of application before merging develop to master.
+    - name: Adjust Version for Pre-release or Feature
+      id: adjust_version
+      run: |
+        BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
+        VERSION=${{ env.VERSION }}
+
+        if [[ "$BRANCH_NAME" == "develop" ]]; then
+          VERSION="${VERSION}-alpha.${GITHUB_RUN_NUMBER}"
+        elif [[ "$BRANCH_NAME" == "release/"* ]]; then
+          VERSION="${VERSION}-beta.${GITHUB_RUN_NUMBER}"
+        elif [[ "$BRANCH_NAME" == "rc/"* ]]; then
+          VERSION="${VERSION}-rc.${GITHUB_RUN_NUMBER}"
+        elif [[ "$BRANCH_NAME" == feature/* ]]; then
+          FEATURE_NAME=$(echo $BRANCH_NAME | sed 's/feature\///')
+          VERSION="${VERSION}-feature${FEATURE_NAME}.${GITHUB_RUN_NUMBER}"
+        fi
+
+        echo "Pre-release version: $VERSION"
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      # Create Git tag, here version has been appropriately updated with sementic versioning, like if alpha, beta and so on so before creating tag, it is require to do semantic versiong properly using version of software.  
+    - name: Create Git Tag
+      run: |
+        git tag $VERSION
+        git push https://github.com/${{ github.repository }} $VERSION  # Push tag with authentication
+
+        # Create GitHub Release (Ensure tag exists before release)
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: ${{ env.VERSION }}  # Use the correct tag from the environment variable
+        files: build_output.zip  # Replace with your actual build output file(s)
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Make sure the token is passed for authentication
