@@ -87,13 +87,13 @@ jobs:
         git push https://github.com/${{ github.repository }} $VERSION  # Push tag with authentication
 
     # Remove the old version/tagging steps and add the Cake tagmaster step
-    - name: Run Cake tagmaster for semantic tagging
-      env:
-        GITHUB_HEAD_REF: ${{ github.head_ref }}
-        GITHUB_BASE_REF: ${{ github.base_ref }}
-        GITHUB_ACTIONS: "true"
-      run: |
-        dotnet cake build.cake --do=tagmaster
+    # - name: Run Cake tagmaster for semantic tagging
+    #   env:
+    #     GITHUB_HEAD_REF: ${{ github.head_ref }}
+    #     GITHUB_BASE_REF: ${{ github.base_ref }}
+    #     GITHUB_ACTIONS: "true"
+    #   run: |
+    #     dotnet cake build.cake --do=tagmaster
 
     # Optionally, you can keep the release step if you want to create a GitHub release after tagging
     # - name: Create GitHub Release
