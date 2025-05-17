@@ -36,6 +36,12 @@ jobs:
         echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
         dotnet-gitversion -version  # Ensure dotnet-gitversion is working
 
+      # Install Cake Tool
+    - name: Install Cake Tool
+      run: |
+        dotnet tool install -g Cake.Tool
+        echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
+
       # Fetch tags and debug git fetch
     - name: Fetch tags and Debug
       run: |
@@ -81,11 +87,20 @@ jobs:
         git tag $VERSION
         git push https://github.com/${{ github.repository }} $VERSION  # Push tag with authentication
 
-        # Create GitHub Release (Ensure tag exists before release)
-    - name: Create GitHub Release
-      uses: softprops/action-gh-release@v1
-      with:
-        tag_name: ${{ env.VERSION }}  # Use the correct tag from the environment variable
-        files: build_output.zip  # Replace with your actual build output file(s)
+    # Remove the old version/tagging steps and add the Cake tagmaster step
+    - name: Run Cake tagmaster for semantic tagging
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Make sure the token is passed for authentication
+        GITHUB_HEAD_REF: ${{ github.head_ref }}
+        GITHUB_BASE_REF: ${{ github.base_ref }}
+        GITHUB_ACTIONS: "true"
+      run: |
+        dotnet cake build.cake --do=tagmaster
+
+    # Optionally, you can keep the release step if you want to create a GitHub release after tagging
+    # - name: Create GitHub Release
+    #   uses: softprops/action-gh-release@v1
+    #   with:
+    #     tag_name: ${{ steps.gitversion.outputs.semVer }}
+    #     files: build_output.zip
+    #   env:
+    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
