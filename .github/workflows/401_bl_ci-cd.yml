@@ -38,8 +38,9 @@ jobs:
       run: |
         dotnet tool install -g Cake.Tool
         set PATH=%PATH%;%USERPROFILE%\.dotnet\tools
-    - name: Add .dotnet tools to PATH
-      run: echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
+    - name: Add dotnet tools to PATH
+      shell: powershell
+      run: echo "$env:USERPROFILE\.dotnet\tools" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
-    - name: Build and Tests
-      run: dotnet cake --do=full --gitusername=${{ env.gitusername }} --gituserpassword=${{ env.gituserpassword }} --githubbuildNumber=${{ github.run_number }} --githubshortPlanName=${{ github.workflow }} --verbosity=diagnostic
+    - name: Run Cake
+      run: dotnet-cake --do=full --gitusername=uopsass-automation --gituserpassword= --githubbuildNumber=14 --githubshortPlanName=401_exchanger/401_bl_ci-cd --verbosity=diagnostic
