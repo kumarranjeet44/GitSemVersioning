@@ -35,7 +35,9 @@ jobs:
         echo Displaying environment variables
         SET
     - name: Install Cake Tool
-      run: dotnet tool install -g Cake.Tool
+      run: |
+        dotnet tool install -g Cake.Tool
+        set PATH=%PATH%;%USERPROFILE%\.dotnet\tools
     - name: Build and Tests
       run: dotnet cake --do=full --gitusername=${{ env.gitusername }} --gituserpassword=${{ env.gituserpassword }} --githubbuildNumber=${{ github.run_number }} --githubshortPlanName=${{ github.workflow }} --verbosity=diagnostic 
     - name: Tag Master Version
