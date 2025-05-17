@@ -18,7 +18,7 @@ env:
 
 jobs:
   Build-401-BL-Continuous-Integration:
-    runs-on: self-hosted
+    runs-on: windows
     if: true # set if condition to false to skip the current job, pushing for second changes
     defaults:
       run:
