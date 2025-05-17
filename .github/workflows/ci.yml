@@ -20,9 +20,9 @@ jobs:
   Build-401-BL-Continuous-Integration:
     runs-on: ubuntu-latest
     if: true # set if condition to false to skip the current job, pushing for second changes
-    defaults:
-      run:
-        shell: cmd
+    # defaults:
+    #   run:
+    #     shell: cmd
     steps:
     - uses: actions/checkout@v4.1.0
       with: 
