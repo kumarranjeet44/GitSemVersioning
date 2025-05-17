@@ -29,11 +29,11 @@ jobs:
         fetch-depth: 0
     - name: Reset build agent
       run: dotnet build-server shutdown
-    # - name: Restore CICD Tools
-    #   run: |-
-    #     dotnet tool restore
-    #     echo Displaying environment variables
-    #     SET
+    - name: Restore CICD Tools
+      run: |-
+        dotnet tool restore
+        echo Displaying environment variables
+        SET
     - name: Build and Tests
       run: dotnet cake --do=full --gitusername=${{ env.gitusername }} --gituserpassword=${{ env.gituserpassword }} --githubbuildNumber=${{ github.run_number }} --githubshortPlanName=${{ github.workflow }} --verbosity=diagnostic 
     - name: Tag Master Version
