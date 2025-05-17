@@ -1,91 +1,40 @@
-name: Auto Tag with Semantic Versioning
-
+name: 401_exchanger/401_bl_ci-cd
 on:
   push:
-    branches:
-      - main
-      - master
-      - develop
-      - 'feature/*'
-      - 'release/*'
-      - 'bugfix/*'
-      - 'rc/*'
-
-permissions:
-  contents: write  # Yes Allow write access to the repository for pushing tags and making changes
+env:
+  NUGET_API_PASSWORD: "${{ secrets.NUGET_API_PASSWORD }}"
+  NUGET_SOURCEURL_STABLE: https://artifactory-na.honeywell.com/artifactory/api/nuget/uop-msd-nuget-stable-local
+  NUGET_SOURCEURL_UNSTABLE: https://artifactory-na.honeywell.com/artifactory/api/nuget/uop-msd-nuget-unstable-local
+  MSBUILD: '"C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\MSBuild\Current\Bin\MSBuild.exe"'
+  Nuget: '"C:\Bamboo\nuget.exe"'
+  VSCodeCoverage: '"C:\Program Files (x86)\Microsoft Visual Studio\2019\TestAgent\Team Tools\Dynamic Code Coverage Tools\CodeCoverage.exe"'
+  build_config: Release
+  iis_site_name: 401_bl_TEST
+  msdeploy: '"C:\Program Files (x86)\IIS\Microsoft Web Deploy V3\msdeploy.exe"'
+  proj_build_temp: Publish
+  vstest: '"C:\Program Files (x86)\Microsoft Visual Studio\2019\TestAgent\Common7\IDE\Extensions\TestPlatform\vstest.console.exe"'
+  gitusername: uopsass-automation
+  gituserpassword: "${{ secrets.gituserpassword }}"
 
 jobs:
-  versioning:
-    runs-on: ubuntu-latest
-
+  Build-401-BL-Continuous-Integration:
+    runs-on: self-hosted
+    if: true # set if condition to false to skip the current job, pushing for second changes
+    defaults:
+      run:
+        shell: cmd
     steps:
-      # Checkout code
-    - name: Checkout code
-      uses: actions/checkout@v2
-
-      # Set up .NET
-    - name: Set up .NET
-      uses: actions/setup-dotnet@v2
-      with:
-        dotnet-version: '8.0'  # Adjust depending on your project requirements
-
-      # Install GitVersion.Tool
-    - name: Install GitVersion.Tool
-      run: |
-        dotnet tool install --global GitVersion.Tool
-        echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
-        dotnet-gitversion -version  # Ensure dotnet-gitversion is working
-
-      # Fetch tags and debug git fetch
-    - name: Fetch tags and Debug
-      run: |
-        echo "Fetching tags from the remote repository..."
-        git fetch --tags -v  # Added verbose flag to give detailed information on fetch
-        git status           # Check if repository is in a clean state and if any changes are pending
-
-      # Run GitVersion to get the version number
-    - name: Run GitVersion
-      id: gitversion  # updating version number as it is bug fix so from 1.2.0 to 1.2.1 --->>....ttt
-      run: |
-        VERSION=1.2.2
-        echo "Version: $VERSION"
-        echo "VERSION=$VERSION" >> $GITHUB_ENV
-
-      # Adjust version for alpha, beta, rc, or feature tags based on branch, if we merge below branched to master then alpha, beta, rc will be appended to the tag before generating the tag.
-      # when we push any branched  to the master, first version number of software will be appended with proper Semantic version and then tag will be created accoridinly and then tag will be pushed to the remote and then it will automatically create release , means Semantic, tagging, and then release at last.
-      # alpha tagging will be created, when create a pull request from develop branch to merge into master branch
-      # if tag is already exist, and if we want to merge develop branch to master branch, then tagging will fail saying tag is already exist so change version number of application before merging develop to master.
-    - name: Adjust Version for Pre-release or Feature
-      id: adjust_version
-      run: |
-        BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
-        VERSION=${{ env.VERSION }}
-
-        if [[ "$BRANCH_NAME" == "develop" ]]; then
-          VERSION="${VERSION}-alpha.${GITHUB_RUN_NUMBER}"
-        elif [[ "$BRANCH_NAME" == "release/"* ]]; then
-          VERSION="${VERSION}-beta.${GITHUB_RUN_NUMBER}"
-        elif [[ "$BRANCH_NAME" == "rc/"* ]]; then
-          VERSION="${VERSION}-rc.${GITHUB_RUN_NUMBER}"
-        elif [[ "$BRANCH_NAME" == feature/* ]]; then
-          FEATURE_NAME=$(echo $BRANCH_NAME | sed 's/feature\///')
-          VERSION="${VERSION}-feature${FEATURE_NAME}.${GITHUB_RUN_NUMBER}"
-        fi
-
-        echo "Pre-release version: $VERSION"
-        echo "VERSION=$VERSION" >> $GITHUB_ENV
-
-      # Create Git tag, here version has been appropriately updated with sementic versioning, like if alpha, beta and so on so before creating tag, it is require to do semantic versiong properly using version of software.  
-    - name: Create Git Tag
-      run: |
-        git tag $VERSION
-        git push https://github.com/${{ github.repository }} $VERSION  # Push tag with authentication
-
-        # Create GitHub Release (Ensure tag exists before release)
-    - name: Create GitHub Release
-      uses: softprops/action-gh-release@v1
-      with:
-        tag_name: ${{ env.VERSION }}  # Use the correct tag from the environment variable
-        files: build_output.zip  # Replace with your actual build output file(s)
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Make sure the token is passed for authentication
+    - uses: actions/checkout@v4.1.0
+      with: 
+        fetch-depth: 0
+    - name: Reset build agent
+      run: dotnet build-server shutdown
+    - name: Restore CICD Tools
+      run: |-
+        dotnet tool restore
+        echo Displaying environment variables
+        SET
+    - name: Build and Tests
+      run: dotnet cake --do=full --gitusername=${{ env.gitusername }} --gituserpassword=${{ env.gituserpassword }} --githubbuildNumber=${{ github.run_number }} --githubshortPlanName=${{ github.workflow }} --verbosity=diagnostic 
+    - name: Tag Master Version
+      run: dotnet cake --do=Tagmaster --gitusername=${{ env.gitusername }} --gituserpassword=${{ env.gituserpassword }} --verbosity=diagnostic

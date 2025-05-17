@@ -1,22 +1,58 @@
-mode: ContinuousDelivery
+assembly-versioning-scheme: MajorMinorPatch
+assembly-file-versioning-format: '{Major}.{Minor}.{Patch}.{CommitsSinceVersionSource}'
+mode: ContinuousDeployment
 branches:
   master:
-    regex: ^master$
-    increment: Minor
-    tag: 'stable'
-  develop:
-    regex: ^develop$
-    increment: Minor
-    tag: 'alpha'
-  feature:
-    regex: ^features?[/-]
-    increment: Minor
-    tag: 'alpha'
-  hotfix:
-    regex: ^hotfix(es)?[/-]
+    mode: ContinuousDelivery
+  bugfix:
+    tag: alpha
     increment: Patch
-    tag: 'hotfix'
-  release:
-    regex: ^release[/-]
+    prevent-increment-of-merged-branch-version: false
+    track-merge-target: false
+    regex: ^bugfix(es)?[/-]
+    source-branches:
+    - develop
+    tracks-release-branches: false
+    is-release-branch: false
+    is-mainline: false
+    pre-release-weight: 30000
+  feature:
+    tag: alpha
     increment: Minor
-    tag: 'beta'
+    prevent-increment-of-merged-branch-version: false
+    track-merge-target: true
+    regex: ^feature[/-]
+    source-branches:
+    - develop
+    tracks-release-branches: false
+    is-release-branch: false
+    is-mainline: false
+    pre-release-weight: 30000
+  hostfix:
+    tag: hostfix
+    increment: Patch
+    prevent-increment-of-merged-branch-version: false
+    track-merge-target: true
+    regex: ^hostfix[/-]
+    source-branches:
+    - master
+    tracks-release-branches: false
+    is-release-branch: false
+    is-mainline: false
+    pre-release-weight: 30000
+  release:
+    tag: beta
+    increment: Minor
+    prevent-increment-of-merged-branch-version: false
+    track-merge-target: true
+    regex: ^release[/-]
+    source-branches:
+    - develop
+    tracks-release-branches: false
+    is-release-branch: true
+    is-mainline: false
+    pre-release-weight: 30000            
+ignore:
+
+  sha: []
+merge-message-formats: {}
