@@ -34,5 +34,12 @@ jobs:
         dotnet tool restore
         echo Displaying environment variables
         SET
+    - name: Install Cake Tool
+      run: |
+        dotnet tool install -g Cake.Tool
+        set PATH=%PATH%;%USERPROFILE%\.dotnet\tools
+    - name: Add .dotnet tools to PATH
+      run: echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
+
     - name: Build and Tests
-      run: dotnet cake --do=full --gitusername=${{ env.gitusername }} --gituserpassword=${{ env.gituserpassword }} --githubbuildNumber=${{ github.run_number }} --githubshortPlanName=${{ github.workflow }} --verbosity=diagnostic 
+      run: dotnet cake --do=full --gitusername=${{ env.gitusername }} --gituserpassword=${{ env.gituserpassword }} --githubbuildNumber=${{ github.run_number }} --githubshortPlanName=${{ github.workflow }} --verbosity=diagnostic
