@@ -160,7 +160,7 @@ Task("Tagmaster").Does(() => {
     //Push tag to origin
     Information($"Pushing Tag to origin");
     var remoteUrl = $"https://{gitUserName}:{gitUserPassword}@github.com/kumarranjeet44/GitSemVersioning/tags";
-    StartProcess("git", new ProcessSettings
+    var pushTagResult = StartProcess("git", new ProcessSettings
     {
         Arguments = new ProcessArgumentBuilder()
             .Append("remote")
