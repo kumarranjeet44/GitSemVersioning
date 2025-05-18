@@ -150,39 +150,28 @@ Task("Tagmaster").Does(() => {
     {
         tagName = $"v{gitVersion.MajorMinorPatch}.{gitVersion.CommitsSinceVersionSource}";
     }
-    else if (currentBranch == "develop")
+    var sourceBranch = Argument("sourcebranch", "");
+    Information("Source branch: {0}", sourceBranch);
+    if (string.IsNullOrEmpty(sourceBranch))
     {
-        var mergeSource = EnvironmentVariable("GITHUB_HEAD_REF") ?? ""; // fallback in PR context
-        Information("Merge source branch: {0}", mergeSource);
-        if (string.IsNullOrEmpty(mergeSource))
+        Information("Source branch is empty, skipping tagging.");
+        return;
+    }
+    if (gitVersion.BranchName == "develop")
+    {
+        if (sourceBranch.StartsWith("feature/") || sourceBranch.StartsWith("bugfix/"))
         {
-            // In push context, fallback to detecting last commit branch
-            var result = StartProcess("git", new ProcessSettings
-            {
-                Arguments = "log -1 --pretty=format:%s",
-                RedirectStandardOutput = true
-            });
-            mergeSource = result == 0 ? System.IO.File.ReadAllText("./.git/ORIG_HEAD").Trim() : "";
+            tag = $"v{gitVersion.MajorMinorPatch}-alpha.{gitVersion.CommitsSinceVersionSource}";
         }
-
-        if (mergeSource.StartsWith("feature/") || mergeSource.StartsWith("bugfix/"))
+        else if (sourceBranch.StartsWith("release/"))
         {
-            tagName = $"v{gitVersion.MajorMinorPatch}-alpha.{gitVersion.CommitsSinceVersionSource}";
-        }
-        else if (mergeSource.StartsWith("release/"))
-        {
-            tagName = $"v{gitVersion.MajorMinorPatch}-beta.{gitVersion.CommitsSinceVersionSource}";
+            tag = $"v{gitVersion.MajorMinorPatch}-beta.{gitVersion.CommitsSinceVersionSource}";
         }
         else
         {
             Information("Merge source branch is not feature/bugfix/release, skipping tagging.");
             return;
         }
-    }
-    else
-    {
-        // Should never reach here due to earlier branch check
-        return;
     }
 
     // Check if tag already exists

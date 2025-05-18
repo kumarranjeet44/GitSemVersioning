@@ -1,6 +1,9 @@
 name: 401_exchanger/401_bl_ci-cd
 on:
-  push:
+  pull_request:
+    branches:
+      - develop
+      - master
 env:
   NUGET_API_PASSWORD: "${{ secrets.NUGET_API_PASSWORD }}"
   NUGET_SOURCEURL_STABLE: https://artifactory-na.honeywell.com/artifactory/api/nuget/uop-msd-nuget-stable-local
@@ -37,6 +40,8 @@ jobs:
         echo Displaying environment variables
         SET
     - name: Restore dotnet tools
-      run: dotnet tool restore            
+      run: dotnet tool restore
+    - name: Set source branch name
+      run: echo "SOURCE_BRANCH=${{ github.head_ref }}" >> $GITHUB_ENV                  
     - name: Build and Tests
-      run: dotnet cake --do=full --gitusername=${{ env.gitusername }} --gituserpassword=${{ env.gituserpassword }}
+      run: dotnet cake --do=full --sourcebranch=$SOURCE_BRANCH --gitusername=${{ env.gitusername }} --gituserpassword=${{ env.gituserpassword }}
