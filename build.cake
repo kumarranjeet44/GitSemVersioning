@@ -166,8 +166,7 @@ Task("Tagmaster").Does(() => {
             .Append("remote")
             .Append("set-url")
             .Append("origin")
-            .Append(remoteUrl)
-            .Append(branchTag),
+            .Append(remoteUrl),
         RedirectStandardOutput = true,
         RedirectStandardError = true
     });
