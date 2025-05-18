@@ -119,6 +119,8 @@ Task("Test").ContinueOnError().Does(() =>
 // Removed Sonarbegin, Sonarend, sonarResult, GetSonarBackgroundTasks, GetTaskResults, GetAnalysisResults, and related classes
 
 Task("Tagmaster").Does(() => {
+    Information("Tagging master with gitUserName: {0}", gitUserName);
+    Information("Tagging master with gitUserPassword: {0}", gitUserPassword);
     //Sanity check
     // var isGitHubActions = EnvironmentVariable("GITHUB_ACTIONS") == "true";
     // if(!isGitHubActions)
