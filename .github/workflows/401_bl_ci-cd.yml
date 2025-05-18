@@ -35,7 +35,9 @@ jobs:
         echo Displaying environment variables
         SET
     - name: Restore dotnet tools
-      run: dotnet tool restore        
+      run: dotnet tool restore  
+    - name: Bootstrap Cake (restore tools and addins)
+      run: dotnet cake --bootstrap --verbosity=diagnostic            
     - name: Build and Tests
       run: dotnet cake --do=full
     # - name: Tag Master Version
