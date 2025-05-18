@@ -39,4 +39,4 @@ jobs:
     - name: Build and Tests
       run: dotnet cake --do=full
     - name: Tag Master Version
-      run: dotnet cake --do=Tagmaster --gitusername=${{ env.gitusername }} --gituserpassword=${{ env.gituserpassword }}
+      run: dotnet cake --do=Tagmaster --gitusername="kumarranjeet44" --gituserpassword="riyasingh@2021"
