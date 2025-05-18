@@ -9,5 +9,8 @@
 	<Version>$(GitVersion_NuGetVersion)</Version>
 	<PackageVersion>$(GitVersion_NuGetVersion)</PackageVersion>
   </PropertyGroup>
+    <ItemGroup>
+      <PackageReference Include="Cake.Curl" Version="4.1.0" />
+  </ItemGroup>
 
 </Project>
