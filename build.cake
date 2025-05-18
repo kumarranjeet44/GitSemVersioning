@@ -161,11 +161,11 @@ Task("Tagmaster").Does(() => {
     {
         if (sourceBranch.StartsWith("feature/") || sourceBranch.StartsWith("bugfix/"))
         {
-            tag = $"v{gitVersion.MajorMinorPatch}-alpha.{gitVersion.CommitsSinceVersionSource}";
+            tagName = $"v{gitVersion.MajorMinorPatch}-alpha.{gitVersion.CommitsSinceVersionSource}";
         }
         else if (sourceBranch.StartsWith("release/"))
         {
-            tag = $"v{gitVersion.MajorMinorPatch}-beta.{gitVersion.CommitsSinceVersionSource}";
+            tagName = $"v{gitVersion.MajorMinorPatch}-beta.{gitVersion.CommitsSinceVersionSource}";
         }
         else
         {
