@@ -161,7 +161,7 @@ Task("Tagmaster").Does(() => {
                 Arguments = "log -1 --pretty=format:%s",
                 RedirectStandardOutput = true
             });
-            mergeSource = result == 0 ? ReadFileText("./.git/ORIG_HEAD").Trim() : "";
+            mergeSource = result == 0 ? System.IO.File.ReadAllText("./.git/ORIG_HEAD").Trim() : "";
         }
 
         if (mergeSource.StartsWith("feature/") || mergeSource.StartsWith("bugfix/"))
