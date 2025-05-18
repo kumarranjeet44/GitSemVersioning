@@ -132,11 +132,11 @@ Task("Tagmaster").Does(() => {
     Information("gitVersion details: {0}", JsonConvert.SerializeObject(gitVersion, Formatting.Indented));
 
     //comment below line to consider all branches
-    // if(gitVersion.BranchName != "master")
-    // {
-    //     Information("Task is not running on master, skip.");
-    //     return;
-    // }
+    if(gitVersion.BranchName != "master" || gitVersion.BranchName != "develop")
+    {
+        Information("Task is not running on master, skip.");
+        return;
+    }
     if (string.IsNullOrEmpty(gitUserName) || string.IsNullOrEmpty(gitUserPassword) ||
         gitUserName == "PROVIDED_BY_GITHUB" || gitUserPassword == "PROVIDED_BY_GITHUB")
     {
