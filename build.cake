@@ -128,14 +128,16 @@ Task("Tagmaster").Does(() => {
     //     Information("Task is not running by automation pipeline, skip.");
     //     return;
     // }
-    Information("Task is running by automation pipeline.");
+    Information("Task is running by automation pipeline with followig git version detail-----");
+    Information("gitVersion details: {0}", JsonConvert.SerializeObject(gitVersion, Formatting.Indented));
+
     //comment below line to consider all branches
     // if(gitVersion.BranchName != "master")
     // {
     //     Information("Task is not running on master, skip.");
     //     return;
     // }
-    if(string.IsNullOrEmpty(gitUserName) || string.IsNullOrEmpty(gitUserPassword) ||
+    if (string.IsNullOrEmpty(gitUserName) || string.IsNullOrEmpty(gitUserPassword) ||
         gitUserName == "PROVIDED_BY_GITHUB" || gitUserPassword == "PROVIDED_BY_GITHUB")
     {
         throw new Exception("Git Username/Password not provided to automation script.");
