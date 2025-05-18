@@ -159,7 +159,7 @@ Task("Tagmaster").Does(() => {
     GitTag(workingDir, branchTag);
     //Push tag to origin
     Information($"Pushing Tag to origin");
-    var originUrl = $"https://{gitUserName}:{gitUserPassword}@github.com/kumarranjeet44/GitSemVersioning";
+    var originUrl = "origin";
     // Push the tag to the remote repository
     var pushTagResult = StartProcess("git", new ProcessSettings
     {
@@ -175,6 +175,11 @@ Task("Tagmaster").Does(() => {
     if (pushTagResult != 0)
     {
         Error("Failed to push tag to origin.");
+            var errorOutput = GetProcessStandardError(pushTagResult);
+        foreach(var line in errorOutput)
+        {
+            Error(line);
+        }
         Environment.Exit(1);
     }
     else
