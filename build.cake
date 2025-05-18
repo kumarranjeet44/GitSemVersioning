@@ -122,12 +122,12 @@ Task("Tagmaster").Does(() => {
     Information("Tagging master with gitUserName: {0}", gitUserName);
     Information("Tagging master with gitUserPassword: {0}", gitUserPassword);
     //Sanity check
-    // var isGitHubActions = EnvironmentVariable("GITHUB_ACTIONS") == "true";
-    // if(!isGitHubActions)
-    // {
-    //     Information("Task is not running by automation pipeline, skip.");
-    //     return;
-    // }
+    var isGitHubActions = EnvironmentVariable("GITHUB_ACTIONS") == "true";
+    if(!isGitHubActions)
+    {
+        Information("Task is not running by automation pipeline, skip.");
+        return;
+    }
     Information("Task is running by automation pipeline with followig git version detail");
     Information("gitVersion details: {0}", JsonConvert.SerializeObject(gitVersion, Formatting.Indented));
 
