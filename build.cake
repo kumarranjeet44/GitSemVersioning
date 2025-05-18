@@ -175,11 +175,6 @@ Task("Tagmaster").Does(() => {
     if (pushTagResult != 0)
     {
         Error("Failed to push tag to origin.");
-        var errorOutput = GetProcessStandardError(pushTagResult);
-        foreach(var line in errorOutput)
-        {
-            Error(line);
-        }
         Environment.Exit(1);
     }
     else
