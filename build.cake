@@ -159,14 +159,14 @@ Task("Tagmaster").Does(() => {
     GitTag(workingDir, branchTag);
     //Push tag to origin
     Information($"Pushing Tag to origin");
-    var originUrl = "origin";
-    // Push the tag to the remote repository
-    var pushTagResult = StartProcess("git", new ProcessSettings
+    var remoteUrl = $"https://{gitUserName}:{gitUserPassword}@github.com/kumarranjeet44/GitSemVersioning/tags";
+    StartProcess("git", new ProcessSettings
     {
         Arguments = new ProcessArgumentBuilder()
-            .Append("push")
-            .Append(originUrl)
-            .Append(branchTag),
+            .Append("remote")
+            .Append("set-url")
+            .Append("origin")
+            .Append(remoteUrl),
         RedirectStandardOutput = true,
         RedirectStandardError = true
     });
