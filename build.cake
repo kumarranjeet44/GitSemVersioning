@@ -116,65 +116,99 @@ Task("Test").ContinueOnError().Does(() =>
 
 });
 
-// Removed Sonarbegin, Sonarend, sonarResult, GetSonarBackgroundTasks, GetTaskResults, GetAnalysisResults, and related classes
-
 Task("Tagmaster").Does(() => {
-    Information("Tagging master with gitUserName: {0}", gitUserName);
-    Information("Tagging master with gitUserPassword: {0}", gitUserPassword);
-    //Sanity check
-    var isGitHubActions = EnvironmentVariable("GITHUB_ACTIONS") == "true";
-    if(!isGitHubActions)
-    {
-        Information("Task is not running by automation pipeline, skip.");
-        return;
-    }
-    Information("Task is running by automation pipeline with followig git version detail");
-    Information("gitVersion details: {0}", JsonConvert.SerializeObject(gitVersion, Formatting.Indented));
+    Information("Tagging with gitUserName: {0}", gitUserName);
+    Information("Tagging with gitUserPassword: {0}", gitUserPassword);
 
-    //comment below line to consider all branches
-    if(gitVersion.BranchName != "master" || gitVersion.BranchName != "develop")
+    // Check if running in GitHub Actions
+    var isGitHubActions = EnvironmentVariable("GITHUB_ACTIONS") == "true";
+    if (!isGitHubActions)
     {
-        Information("Task is not running on master/develop, hence skip tagging.");
+        Information("Not running inside GitHub Actions, skipping tagging.");
         return;
     }
+
+    Information("Running inside GitHub Actions.");
+    Information("GitVersion details: {0}", JsonConvert.SerializeObject(gitVersion, Formatting.Indented));
+
+    var currentBranch = gitVersion.BranchName;
+    if (currentBranch != "master" && currentBranch != "develop")
+    {
+        Information($"Current branch '{currentBranch}' is not master or develop. Skipping tagging.");
+        return;
+    }
+
     if (string.IsNullOrEmpty(gitUserName) || string.IsNullOrEmpty(gitUserPassword) ||
         gitUserName == "PROVIDED_BY_GITHUB" || gitUserPassword == "PROVIDED_BY_GITHUB")
     {
-        throw new Exception("Git Username/Password not provided to automation script.");
+        throw new Exception("Git Username/Password not provided.");
     }
-    //List and check existing tags
-    Information("Previous Releases:");
-    var currentTags = GitTags(".");
-    foreach(var tag in currentTags)
+
+    // Determine the tag format
+    string tagName;
+    if (currentBranch == "master")
     {
-        Information(tag.FriendlyName);
+        tagName = $"v{gitVersion.MajorMinorPatch}.{gitVersion.CommitsSinceVersionSource}";
     }
-    var branchTag = $"v{gitVersion.SemVer}";
-    if(currentTags.Any(t => t.FriendlyName == branchTag))
+    else if (currentBranch == "develop")
     {
-        Information($"Tag {branchTag} already exists, skip tagging.");
+        var mergeSource = EnvironmentVariable("GITHUB_HEAD_REF") ?? ""; // fallback in PR context
+        if (string.IsNullOrEmpty(mergeSource))
+        {
+            // In push context, fallback to detecting last commit branch
+            var result = StartProcess("git", new ProcessSettings
+            {
+                Arguments = "log -1 --pretty=format:%s",
+                RedirectStandardOutput = true
+            });
+            mergeSource = result == 0 ? ReadFileText("./.git/ORIG_HEAD").Trim() : "";
+        }
+
+        if (mergeSource.StartsWith("feature/") || mergeSource.StartsWith("bugfix/"))
+        {
+            tagName = $"v{gitVersion.MajorMinorPatch}-alpha.{gitVersion.CommitsSinceVersionSource}";
+        }
+        else if (mergeSource.StartsWith("release/"))
+        {
+            tagName = $"v{gitVersion.MajorMinorPatch}-beta.{gitVersion.CommitsSinceVersionSource}";
+        }
+        else
+        {
+            Information("Merge source branch is not feature/bugfix/release, skipping tagging.");
+            return;
+        }
+    }
+    else
+    {
+        // Should never reach here due to earlier branch check
         return;
     }
-    //Tag locally--
+
+    // Check if tag already exists
+    var currentTags = GitTags(".");
+    if (currentTags.Any(t => t.FriendlyName == tagName))
+    {
+        Information($"Tag '{tagName}' already exists. Skipping.");
+        return;
+    }
+
+    // Create the tag
     var workingDir = MakeAbsolute(Directory("./"));
-    Information($"Tagging branch as: {branchTag} in resolved working dir: {workingDir}");
-    GitTag(workingDir, branchTag);
-    //Push tag to origin -- --- -- ---
-    Information($"Pushing Tag to origin");
-    var originUrl = "origin";
-    //var originUrl = $"https://{gitUserName}:{gitUserPassword}@github.com/kumarranjeet44/GitSemVersioning";
-    // Push the tag to the remote repository
+    Information($"Creating local tag: {tagName} in {workingDir}");
+    GitTag(workingDir, tagName);
+
+    // Push the tag to origin
+    Information("Pushing tag to origin...");
     var pushTagResult = StartProcess("git", new ProcessSettings
     {
         Arguments = new ProcessArgumentBuilder()
             .Append("push")
-            .Append(originUrl)
-            .Append(branchTag),
+            .Append("origin")
+            .Append(tagName),
         RedirectStandardOutput = true,
         RedirectStandardError = true
     });
 
-    // Log output for debugging
     if (pushTagResult != 0)
     {
         Error("Failed to push tag to origin.");
@@ -182,11 +216,11 @@ Task("Tagmaster").Does(() => {
     }
     else
     {
-        Information("Tag successfully pushed to origin.");
+        Information($"Tag '{tagName}' successfully pushed to origin.");
     }
 });
 
-// Simplified "full" task chain
+
 Task("full")
     .IsDependentOn("Clean")
     .IsDependentOn("Build")
