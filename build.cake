@@ -117,98 +117,59 @@ Task("Test").ContinueOnError().Does(() =>
 });
 
 Task("Tagmaster").Does(() => {
-    Information("Tagging with gitUserName: {0}", gitUserName);
-    Information("Tagging with gitUserPassword: {0}", gitUserPassword);
-
-    // Check if running in GitHub Actions
+    //Sanity check
     var isGitHubActions = EnvironmentVariable("GITHUB_ACTIONS") == "true";
-    if (!isGitHubActions)
+    if(!isGitHubActions)
     {
-        Information("Not running inside GitHub Actions, skipping tagging.");
+        Information("Task is not running by automation pipeline, skip.");
         return;
     }
-
+    Information("Task is running by automation pipeline.");
     Information("Running inside GitHub Actions.");
     Information("GitVersion details: {0}", JsonConvert.SerializeObject(gitVersion, Formatting.Indented));
-
-    var currentBranch = gitVersion.BranchName;
-    if (currentBranch != "master" && currentBranch != "develop")
+    //comment below line to consider all branches
+    if(gitVersion.BranchName != "master" || gitVersion.BranchName != "develop")
     {
-        Information($"Current branch '{currentBranch}' is not master or develop. Skipping tagging.");
+        Information("Task is not running on master/devlop, hence skip tagging.");
         return;
     }
-
-    if (string.IsNullOrEmpty(gitUserName) || string.IsNullOrEmpty(gitUserPassword) ||
+    if(string.IsNullOrEmpty(gitUserName) || string.IsNullOrEmpty(gitUserPassword) ||
         gitUserName == "PROVIDED_BY_GITHUB" || gitUserPassword == "PROVIDED_BY_GITHUB")
     {
-        throw new Exception("Git Username/Password not provided.");
+        throw new Exception("Git Username/Password not provided to automation script.");
     }
-
-    // Determine the tag format
-    string tagName;
-    if (currentBranch == "master")
-    {
-        tagName = $"v{gitVersion.MajorMinorPatch}.{gitVersion.CommitsSinceVersionSource}";
-    }
-    else if (currentBranch == "develop")
-    {
-        var mergeSource = EnvironmentVariable("GITHUB_HEAD_REF") ?? ""; // fallback in PR context
-        if (string.IsNullOrEmpty(mergeSource))
-        {
-            // In push context, fallback to detecting last commit branch
-            var result = StartProcess("git", new ProcessSettings
-            {
-                Arguments = "log -1 --pretty=format:%s",
-                RedirectStandardOutput = true
-            });
-            mergeSource = result == 0 ? System.IO.File.ReadAllText("./.git/ORIG_HEAD").Trim() : "";
-        }
-
-        if (mergeSource.StartsWith("feature/") || mergeSource.StartsWith("bugfix/"))
-        {
-            tagName = $"v{gitVersion.MajorMinorPatch}-alpha.{gitVersion.CommitsSinceVersionSource}";
-        }
-        else if (mergeSource.StartsWith("release/"))
-        {
-            tagName = $"v{gitVersion.MajorMinorPatch}-beta.{gitVersion.CommitsSinceVersionSource}";
-        }
-        else
-        {
-            Information("Merge source branch is not feature/bugfix/release, skipping tagging.");
-            return;
-        }
-    }
-    else
-    {
-        // Should never reach here due to earlier branch check
-        return;
-    }
-
-    // Check if tag already exists
+    //List and check existing tags
+    Information("Previous Releases:");
     var currentTags = GitTags(".");
-    if (currentTags.Any(t => t.FriendlyName == tagName))
+    foreach(var tag in currentTags)
     {
-        Information($"Tag '{tagName}' already exists. Skipping.");
+        Information(tag.FriendlyName);
+    }
+    var branchTag = $"v{gitVersion.MajorMinorPatch}.{gitVersion.CommitsSinceVersionSource}";
+    if(currentTags.Any(t => t.FriendlyName == branchTag))
+    {
+        Information($"Tag {branchTag} already exists, skip tagging.");
         return;
     }
-
-    // Create the tag
+    //Tag locally
     var workingDir = MakeAbsolute(Directory("./"));
-    Information($"Creating local tag: {tagName} in {workingDir}");
-    GitTag(workingDir, tagName);
-
-    // Push the tag to origin
-    Information("Pushing tag to origin...");
+    Information($"Tagging branch as: {branchTag} in resolved working dir: {workingDir}");
+    GitTag(workingDir, branchTag);
+    //Push tag to origin
+    Information($"Pushing Tag to origin");
+    var originUrl = "origin";
+    // Push the tag to the remote repository
     var pushTagResult = StartProcess("git", new ProcessSettings
     {
         Arguments = new ProcessArgumentBuilder()
             .Append("push")
-            .Append("origin")
-            .Append(tagName),
+            .Append(originUrl)
+            .Append(branchTag),
         RedirectStandardOutput = true,
         RedirectStandardError = true
     });
 
+    // Log output for debugging
     if (pushTagResult != 0)
     {
         Error("Failed to push tag to origin.");
@@ -216,7 +177,7 @@ Task("Tagmaster").Does(() => {
     }
     else
     {
-        Information($"Tag '{tagName}' successfully pushed to origin.");
+        Information("Tag successfully pushed to origin.");
     }
 });
 
