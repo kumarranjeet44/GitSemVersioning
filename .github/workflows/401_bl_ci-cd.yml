@@ -34,8 +34,6 @@ jobs:
         dotnet tool restore
         echo Displaying environment variables
         SET
-    - name: Add NuGet source
-      run: dotnet nuget add source https://api.nuget.org/v3/index.json -n nuget.org
     - name: Bootstrap Cake (restore tools and addins)
       run: dotnet cake --bootstrap --verbosity=diagnostic
     - name: Restore dotnet tools
