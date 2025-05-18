@@ -130,7 +130,7 @@ Task("Tagmaster").Does(() => {
     //comment below line to consider all branches
     if(gitVersion.BranchName != "master" || gitVersion.BranchName != "develop")
     {
-        Information("Task is not running on master, skip.");
+        Information("Task is not running on master/devlop, hence skip tagging.");
         return;
     }
     if(string.IsNullOrEmpty(gitUserName) || string.IsNullOrEmpty(gitUserPassword) ||
