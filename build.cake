@@ -128,7 +128,7 @@ Task("Tagmaster").Does(() => {
     //     Information("Task is not running by automation pipeline, skip.");
     //     return;
     // }
-    Information("Task is running by automation pipeline with followig git version detail-----");
+    Information("Task is running by automation pipeline with followig git version detail");
     Information("gitVersion details: {0}", JsonConvert.SerializeObject(gitVersion, Formatting.Indented));
 
     //comment below line to consider all branches
