@@ -153,6 +153,7 @@ Task("Tagmaster").Does(() => {
     else if (currentBranch == "develop")
     {
         var mergeSource = EnvironmentVariable("GITHUB_HEAD_REF") ?? ""; // fallback in PR context
+        Information("Merge source branch: {0}", mergeSource);
         if (string.IsNullOrEmpty(mergeSource))
         {
             // In push context, fallback to detecting last commit branch
