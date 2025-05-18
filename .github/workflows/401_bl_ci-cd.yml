@@ -14,7 +14,7 @@ env:
   proj_build_temp: Publish
   vstest: '"C:\Program Files (x86)\Microsoft Visual Studio\2019\TestAgent\Common7\IDE\Extensions\TestPlatform\vstest.console.exe"'
   gitusername: kumarranjeet44
-  gituserpassword: "${{ secrets.GITUSERPASSWORD }}"
+  gituserpassword: "${{ secrets.GIT_PAT  }}"
 
 jobs:
   Build-401-BL-Continuous-Integration:
