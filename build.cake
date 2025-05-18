@@ -130,7 +130,7 @@ Task("Tagmaster").Does(() => {
     //comment below line to consider all branches
     if(gitVersion.BranchName != "master" && gitVersion.BranchName != "develop")
     {
-        Information($"Current branch '{currentBranch}' is not master or develop. Skipping tagging.");
+        Information($"Current branch '{gitVersion.BranchName}' is not master or develop. Skipping tagging.");
         return;
     }
     if(string.IsNullOrEmpty(gitUserName) || string.IsNullOrEmpty(gitUserPassword) ||
