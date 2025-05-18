@@ -1,9 +1,9 @@
 #tool "nuget:?package=NuGet.CommandLine&version=5.5.1"
-#tool "nuget:?package=GitVersion.Tool&version=5.12.0" // Use latest GitVersion.Tool
+#tool "nuget:?package=GitVersion.CommandLine&version=5.3.5"
 #tool "nuget:?package=OpenCover&version=4.7.922"
-#addin "nuget:?package=Cake.Curl&version=6.0.0"
-#addin "nuget:?package=Cake.Git&version=3.0.0"
-#addin "nuget:?package=Cake.FileHelpers&version=5.0.0"
+#addin "nuget:?package=Cake.Curl&version=4.1.0"
+#addin "nuget:?package=Cake.Git&version=1.0.1"
+#addin "nuget:?package=Cake.FileHelpers&version=3.0.0"
 #tool "nuget:?package=Microsoft.TestPlatform&version=16.6.1"
 #addin "nuget:?package=Newtonsoft.Json&version=9.0.1&prerelease"
 #tool "nuget:?package=coverlet.console&version=3.1.2"
@@ -120,12 +120,12 @@ Task("Test").ContinueOnError().Does(() =>
 
 Task("Tagmaster").Does(() => {
     //Sanity check
-    var isGitHubActions = EnvironmentVariable("GITHUB_ACTIONS") == "true";
-    if(!isGitHubActions)
-    {
-        Information("Task is not running by automation pipeline, skip.");
-        return;
-    }
+    // var isGitHubActions = EnvironmentVariable("GITHUB_ACTIONS") == "true";
+    // if(!isGitHubActions)
+    // {
+    //     Information("Task is not running by automation pipeline, skip.");
+    //     return;
+    // }
     Information("Task is running by automation pipeline.");
     //comment below line to consider all branches
     // if(gitVersion.BranchName != "master")
@@ -185,6 +185,7 @@ Task("Tagmaster").Does(() => {
 Task("full")
     .IsDependentOn("Clean")
     .IsDependentOn("Build")
-    .IsDependentOn("Test");
+    .IsDependentOn("Test")
+    .IsDependentOn("Tagmaster");
 
 RunTarget(target);

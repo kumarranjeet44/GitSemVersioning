@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>NuGet.CommandLine</id>
+    <version>5.5.1</version>
+    <authors>Microsoft</authors>
+    <owners>Microsoft</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <developmentDependency>true</developmentDependency>
+    <license type="expression">Apache-2.0</license>
+    <licenseUrl>https://licenses.nuget.org/Apache-2.0</licenseUrl>
+    <projectUrl>https://aka.ms/nugetprj</projectUrl>
+    <iconUrl>https://raw.githubusercontent.com/NuGet/Media/master/Images/MainLogo/256x256/nuget_256.png</iconUrl>
+    <description>NuGet Command Line Tool.</description>
+    <copyright>© Microsoft Corporation. All rights reserved.</copyright>
+    <tags>nuget</tags>
+    <serviceable>true</serviceable>
+    <repository type="git" url="https://github.com/NuGet/NuGet.Client" commit="fd2f920875c33464efb4b5ac366d8b8a83239dc0" />
+  </metadata>
+</package>

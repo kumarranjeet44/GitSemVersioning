@@ -38,5 +38,5 @@ jobs:
       run: dotnet tool restore            
     - name: Build and Tests
       run: dotnet cake --do=full
-    # - name: Tag Master Version
-    #   run: dotnet cake --do=Tagmaster --gitusername=${{ env.gitusername }} --gituserpassword=${{ env.gituserpassword }}
+    - name: Tag Master Version
+      run: dotnet cake --do=Tagmaster --gitusername=${{ env.gitusername }} --gituserpassword=${{ env.gituserpassword }}
