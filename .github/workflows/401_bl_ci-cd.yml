@@ -13,7 +13,7 @@ env:
   msdeploy: '"C:\Program Files (x86)\IIS\Microsoft Web Deploy V3\msdeploy.exe"'
   proj_build_temp: Publish
   vstest: '"C:\Program Files (x86)\Microsoft Visual Studio\2019\TestAgent\Common7\IDE\Extensions\TestPlatform\vstest.console.exe"'
-  gitusername: uopsass-automation
+  gitusername: kumarranjeet44
   gituserpassword: "${{ secrets.gituserpassword }}"
 
 jobs:
@@ -37,4 +37,4 @@ jobs:
     - name: Restore dotnet tools
       run: dotnet tool restore            
     - name: Build and Tests
-      run: dotnet cake --do=full --gitusername="kumarranjeet44" --gituserpassword="riyasingh@2021"
+      run: dotnet cake --do=full --gitusername=${{ env.gitusername }} --gituserpassword=${{ env.gituserpassword }}
