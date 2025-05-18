@@ -37,6 +37,6 @@ jobs:
     - name: Restore dotnet tools
       run: dotnet tool restore        
     - name: Build and Tests
-      run: dotnet cake --do=full --gitusername=${{ env.gitusername }} --gituserpassword=${{ env.gituserpassword }} --sonarapikey=${{ env.SonarPassword }} --githubbuildNumber=${{ github.run_number }} --githubshortPlanName=${{ github.workflow }} --verbosity=diagnostic 
-    - name: Tag Master Version
-      run: dotnet cake --do=Tagmaster --gitusername=${{ env.gitusername }} --gituserpassword=${{ env.gituserpassword }}
+      run: dotnet cake --do=full
+    # - name: Tag Master Version
+    #   run: dotnet cake --do=Tagmaster --gitusername=${{ env.gitusername }} --gituserpassword=${{ env.gituserpassword }}
