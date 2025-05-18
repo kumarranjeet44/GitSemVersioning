@@ -37,6 +37,4 @@ jobs:
     - name: Restore dotnet tools
       run: dotnet tool restore            
     - name: Build and Tests
-      run: dotnet cake --do=full
-    - name: Tag Master Version
-      run: dotnet cake --do=Tagmaster --gitusername="kumarranjeet44" --gituserpassword="riyasingh@2021"
+      run: dotnet cake --do=full --gitusername="kumarranjeet44" --gituserpassword="riyasingh@2021"
