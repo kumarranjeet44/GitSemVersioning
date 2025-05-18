@@ -34,14 +34,8 @@ jobs:
         dotnet tool restore
         echo Displaying environment variables
         SET
-    - name: Ensure public NuGet source for Cake addins/tools
-      run: |
-        dotnet nuget add source https://api.nuget.org/v3/index.json --name nuget.org --store-password-in-clear-text --configfile "%APPDATA%\NuGet\NuGet.Config"
-        dotnet nuget list source --configfile "%APPDATA%\NuGet\NuGet.Config"
-    - name: Install Cake.Tool
-      run: |
-        dotnet tool install -g Cake.Tool
-        set PATH=%PATH%;%USERPROFILE%\.dotnet\tools
+    - name: Restore dotnet tools
+      run: dotnet tool restore            
     - name: Build and Tests
       run: dotnet cake --do=full
     # - name: Tag Master Version
