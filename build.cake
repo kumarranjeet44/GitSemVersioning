@@ -125,6 +125,8 @@ Task("Tagmaster").Does(() => {
         return;
     }
     Information("Task is running by automation pipeline.");
+    Information("Running inside GitHub Actions.");
+    Information("GitVersion details: {0}", JsonConvert.SerializeObject(gitVersion, Formatting.Indented));
     //comment below line to consider all branches
     if(gitVersion.BranchName != "master" || gitVersion.BranchName != "develop")
     {
