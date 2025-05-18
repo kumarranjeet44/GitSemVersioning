@@ -128,9 +128,9 @@ Task("Tagmaster").Does(() => {
     Information("Running inside GitHub Actions.");
     Information("GitVersion details: {0}", JsonConvert.SerializeObject(gitVersion, Formatting.Indented));
     //comment below line to consider all branches
-    if(gitVersion.BranchName != "master" || gitVersion.BranchName != "develop")
+    if(gitVersion.BranchName != "master" && gitVersion.BranchName != "develop")
     {
-        Information("Task is not running on master/devlop, hence skip tagging.");
+        Information($"Current branch '{gitVersion.BranchName}' is not master or develop. Skipping tagging.");
         return;
     }
     if(string.IsNullOrEmpty(gitUserName) || string.IsNullOrEmpty(gitUserPassword) ||
@@ -145,7 +145,7 @@ Task("Tagmaster").Does(() => {
     {
         Information(tag.FriendlyName);
     }
-    var branchTag = $"v{gitVersion.MajorMinorPatch}.{gitVersion.CommitsSinceVersionSource}";
+    var branchTag = $"v{gitVersion.FullSemVer}";
     if(currentTags.Any(t => t.FriendlyName == branchTag))
     {
         Information($"Tag {branchTag} already exists, skip tagging.");
