@@ -146,10 +146,6 @@ Task("Tagmaster").Does(() => {
 
     // Determine the tag format
     string tagName;
-    if (currentBranch == "master")
-    {
-        tagName = $"v{gitVersion.MajorMinorPatch}.{gitVersion.CommitsSinceVersionSource}";
-    }
     var sourceBranch = Argument("sourcebranch", "");
     Information("Source branch: {0}", sourceBranch);
     if (string.IsNullOrEmpty(sourceBranch))
@@ -157,13 +153,30 @@ Task("Tagmaster").Does(() => {
         Information("Source branch is empty, skipping tagging.");
         return;
     }
+    if (currentBranch == "master")
+    {
+        tagName = $"v{gitVersion.MajorMinorPatch}.{gitVersion.CommitsSinceVersionSource}";
+    }
+
     if (gitVersion.BranchName == "develop")
     {
-        tagName = $"v{gitVersion.MajorMinorPatch}-beta.{gitVersion.CommitsSinceVersionSource}";
+        if (sourceBranch.StartsWith("feature/") || sourceBranch.StartsWith("bugfix/"))
+        {
+            tagName = $"v{gitVersion.MajorMinorPatch}-alpha.{gitVersion.CommitsSinceVersionSource}";
+        }
+        else if (sourceBranch.StartsWith("release/"))
+        {
+            tagName = $"v{gitVersion.MajorMinorPatch}-beta.{gitVersion.CommitsSinceVersionSource}";
+        }
+        else
+        {
+            Information("Merge source branch is not feature/bugfix/release, skipping tagging.");
+            return;
+        }
     }
     else
     {
-        // Should never reach here due to earlier branch check
+        Information("Merge source branch is not feature/bugfix/release, skipping tagging.");
         return;
     }
 
