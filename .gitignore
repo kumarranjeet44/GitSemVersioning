@@ -1,5 +1,5 @@
 /.vs/
 /TestResults/
 /.sonarqube/
-/.GitSemVersioning/obj
-./obj/
+/GitSemVersioning/obj/
+/obj/
