@@ -27,6 +27,7 @@ jobs:
     - uses: actions/checkout@v4.1.0
       with: 
         fetch-depth: 0
+        persist-credentials: true
     - name: Reset build agent
       run: dotnet build-server shutdown
     - name: Restore CICD Tools

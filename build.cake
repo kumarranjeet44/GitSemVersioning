@@ -161,7 +161,7 @@ Task("Tagmaster").Does(() => {
     Information($"Pushing Tag to origin");
     var originUrl = "origin";
     // Push the tag to the remote repository
-    var processSettings = new ProcessSettings
+    var pushTagResult = StartProcess("git", new ProcessSettings
     {
         Arguments = new ProcessArgumentBuilder()
             .Append("push")
@@ -169,17 +169,14 @@ Task("Tagmaster").Does(() => {
             .Append(branchTag),
         RedirectStandardOutput = true,
         RedirectStandardError = true
-    };
+    });
 
-    var outputLines = new List<string>();
-    var errorLines = new List<string>();
-
-    var exitCode = StartProcess("git", processSettings, out outputLines, out errorLines);
-
-    if (exitCode != 0)
+    // Log output for debugging
+    if (pushTagResult != 0)
     {
         Error("Failed to push tag to origin.");
-        foreach(var line in errorLines)
+        var errorOutput = GetProcessStandardError(pushTagResult);
+        foreach(var line in errorOutput)
         {
             Error(line);
         }
