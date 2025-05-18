@@ -159,19 +159,12 @@ Task("Tagmaster").Does(() => {
     }
     if (gitVersion.BranchName == "develop")
     {
-        if (sourceBranch.StartsWith("feature/") || sourceBranch.StartsWith("bugfix/"))
-        {
-            tagName = $"v{gitVersion.MajorMinorPatch}-alpha.{gitVersion.CommitsSinceVersionSource}";
-        }
-        else if (sourceBranch.StartsWith("release/"))
-        {
-            tagName = $"v{gitVersion.MajorMinorPatch}-beta.{gitVersion.CommitsSinceVersionSource}";
-        }
-        else
-        {
-            Information("Merge source branch is not feature/bugfix/release, skipping tagging.");
-            return;
-        }
+        tagName = $"v{gitVersion.MajorMinorPatch}-beta.{gitVersion.CommitsSinceVersionSource}";
+    }
+    else
+    {
+        // Should never reach here due to earlier branch check
+        return;
     }
 
     // Check if tag already exists
