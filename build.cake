@@ -145,7 +145,7 @@ Task("Tagmaster").Does(() => {
     {
         Information(tag.FriendlyName);
     }
-    var branchTag = $"v{gitVersion.MajorMinorPatch}.{gitVersion.CommitsSinceVersionSource}";
+    var branchTag = $"v{gitVersion.FullSemVer}";
     if(currentTags.Any(t => t.FriendlyName == branchTag))
     {
         Information($"Tag {branchTag} already exists, skip tagging.");
