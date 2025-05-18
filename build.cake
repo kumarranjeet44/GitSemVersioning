@@ -145,17 +145,18 @@ Task("Tagmaster").Does(() => {
     {
         Information(tag.FriendlyName);
     }
-    if(gitVersion.BranchName == "master")
+    var branchTag;
+    if (gitVersion.BranchName == "master")
     {
-        var branchTag = $"v{gitVersion.MajorMinorPatch}.{gitVersion.CommitsSinceVersionSource}";
+        branchTag = $"v{gitVersion.MajorMinorPatch}.{gitVersion.CommitsSinceVersionSource}";
     }
-    else if(gitVersion.BranchName == "develop")
+    else if (gitVersion.BranchName == "develop")
     {
-        var branchTag = $"v{gitVersion.MajorMinorPatch}-{gitVersion.PreReleaseLabel}.{gitVersion.CommitsSinceVersionSource}";
+        branchTag = $"v{gitVersion.MajorMinorPatch}-{gitVersion.PreReleaseLabel}.{gitVersion.CommitsSinceVersionSource}";
     }
     else
     {
-        throw new Exception($"Branch '{gitVersion.BranchName}' is not supported for tagging.");         
+        throw new Exception($"Branch '{gitVersion.BranchName}' is not supported for tagging.");
     }
     
     if(currentTags.Any(t => t.FriendlyName == branchTag))
