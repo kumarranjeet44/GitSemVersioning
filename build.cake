@@ -163,6 +163,8 @@ Task("Tagmaster").Does(() => {
     var pushTagResult = StartProcess("git", new ProcessSettings
     {
         Arguments = new ProcessArgumentBuilder()
+            .Append("push")
+            .Append(branchTag)
             .Append("remote")
             .Append("set-url")
             .Append("origin")
