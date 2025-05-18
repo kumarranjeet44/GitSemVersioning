@@ -146,30 +146,25 @@ Task("Tagmaster").Does(() => {
 
     // Determine the tag format
     string tagName;
+    var sourceBranch = Argument("sourcebranch", "");
+    Information("Source branch: {0}", sourceBranch);
+    if (string.IsNullOrEmpty(sourceBranch))
+    {
+        Information("Source branch is empty, skipping tagging.");
+        return;
+    }
     if (currentBranch == "master")
     {
         tagName = $"v{gitVersion.MajorMinorPatch}.{gitVersion.CommitsSinceVersionSource}";
     }
-    else if (currentBranch == "develop")
-    {
-        var mergeSource = EnvironmentVariable("GITHUB_HEAD_REF") ?? ""; // fallback in PR context
-        Information("Merge source branch: {0}", mergeSource);
-        if (string.IsNullOrEmpty(mergeSource))
-        {
-            // In push context, fallback to detecting last commit branch
-            var result = StartProcess("git", new ProcessSettings
-            {
-                Arguments = "log -1 --pretty=format:%s",
-                RedirectStandardOutput = true
-            });
-            mergeSource = result == 0 ? System.IO.File.ReadAllText("./.git/ORIG_HEAD").Trim() : "";
-        }
 
-        if (mergeSource.StartsWith("feature/") || mergeSource.StartsWith("bugfix/"))
+    if (gitVersion.BranchName == "develop")
+    {
+        if (sourceBranch.StartsWith("feature/") || sourceBranch.StartsWith("bugfix/"))
         {
             tagName = $"v{gitVersion.MajorMinorPatch}-alpha.{gitVersion.CommitsSinceVersionSource}";
         }
-        else if (mergeSource.StartsWith("release/"))
+        else if (sourceBranch.StartsWith("release/"))
         {
             tagName = $"v{gitVersion.MajorMinorPatch}-beta.{gitVersion.CommitsSinceVersionSource}";
         }
@@ -181,7 +176,7 @@ Task("Tagmaster").Does(() => {
     }
     else
     {
-        // Should never reach here due to earlier branch check
+        Information("Merge source branch is not feature/bugfix/release, skipping tagging.");
         return;
     }
 
